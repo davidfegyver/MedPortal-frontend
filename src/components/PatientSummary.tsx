@@ -3,16 +3,22 @@ import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
 import { Sparkles, Loader2 } from "lucide-react";
 
+// Module-level cache so summaries survive remounts/navigation
+const summaryCache = new Map<string, string>();
+
 interface Props {
   patientId: string;
   patientName: string;
 }
 
 const PatientSummary = ({ patientId, patientName }: Props) => {
-  const [summary, setSummary] = useState("");
-  const [loading, setLoading] = useState(true);
+  const cached = summaryCache.get(patientId);
+  const [summary, setSummary] = useState(cached || "");
+  const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
+    if (cached) return; // Already have it, skip fetch
+
     const fetchSummary = async () => {
       setLoading(true);
       setSummary("");
@@ -81,6 +87,7 @@ const PatientSummary = ({ patientId, patientName }: Props) => {
             } catch {}
           }
         }
+        summaryCache.set(patientId, fullText);
         setLoading(false);
       } catch {
         setSummary("Unable to generate summary at this time.");
@@ -89,7 +96,7 @@ const PatientSummary = ({ patientId, patientName }: Props) => {
     };
 
     fetchSummary();
-  }, [patientId, patientName]);
+  }, [patientId, patientName, cached]);
 
   return (
     <div className="bg-card rounded-2xl p-6 border border-border healthcare-shadow">
