@@ -19,8 +19,6 @@ const PatientPDFs = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/auth"); return; }
       const { data } = await supabase.from("patient_pdfs").select("*").eq("patient_id", id!).order("uploaded_at", { ascending: false });
       setPdfs(data || []);
       setLoading(false);

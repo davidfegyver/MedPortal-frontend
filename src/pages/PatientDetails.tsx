@@ -23,9 +23,6 @@ const PatientDetails = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/auth"); return; }
-
       const { data: p } = await supabase.from("patients").select("full_name").eq("id", id!).maybeSingle();
       if (!p) { navigate("/"); return; }
       setPatient(p);
