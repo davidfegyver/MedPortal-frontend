@@ -1,15 +1,20 @@
-import { User } from "lucide-react";
+import { motion } from "framer-motion";
 
 const DoctorProfile = () => {
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full healthcare-gradient flex items-center justify-center overflow-hidden">
-        <User className="h-5 w-5 text-primary-foreground" />
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="flex items-center gap-3"
+    >
+      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-primary">
+        DKA
       </div>
-      <span className="text-sm font-medium text-foreground hidden sm:block">
-        Doctor
-      </span>
-    </div>
+      <div className="hidden sm:flex flex-col">
+        <span className="text-xs text-muted-foreground">Logged in as</span>
+        <span className="text-sm font-semibold text-foreground">Dr. Kovács Anna</span>
+      </div>
+    </motion.div>
   );
 };
 
