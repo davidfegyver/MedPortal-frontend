@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Send, MessageCircle, Loader2, User, Bot } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -70,9 +71,13 @@ const PatientChat = ({ patientId, patientName }: Props) => {
               <div className={`max-w-[80%] rounded-2xl p-3 text-sm ${
                 msg.role === "user" 
                   ? "bg-primary text-primary-foreground rounded-tr-none" 
-                  : "bg-muted text-foreground rounded-tl-none"
+                  : "bg-muted text-foreground rounded-tl-none prose prose-sm max-w-none"
               }`}>
-                {msg.content}
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
               </div>
             </div>
           ))

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Loader2, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
+import ReactMarkdown from "react-markdown";
 
 interface Props {
   patientId: string;
@@ -47,8 +48,8 @@ const PatientSummary = ({ patientId, patientName }: Props) => {
           <span>{error}</span>
         </div>
       ) : (
-        <div className="text-foreground text-sm leading-relaxed whitespace-pre-wrap">
-          {summary}
+        <div className="text-foreground text-sm leading-relaxed prose prose-sm max-w-none">
+          <ReactMarkdown>{summary || ""}</ReactMarkdown>
         </div>
       )}
     </div>
