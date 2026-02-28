@@ -85,7 +85,27 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            color: "hsl(var(--foreground))",
+            h1: { color: "hsl(var(--primary))", fontWeight: "700" },
+            h2: { color: "hsl(var(--primary))", fontWeight: "600" },
+            h3: { color: "hsl(var(--primary))", fontWeight: "600" },
+            h4: { color: "hsl(var(--primary))", fontWeight: "600" },
+            strong: { color: "hsl(var(--foreground))", fontWeight: "600" },
+            a: {
+              color: "hsl(var(--primary))",
+              textDecoration: "underline",
+              "&:hover": {
+                color: "hsl(var(--primary))",
+                opacity: 0.8,
+              },
+            },
+          },
+        },
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;
