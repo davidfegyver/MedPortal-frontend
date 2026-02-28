@@ -11,7 +11,7 @@ const Index = () => {
         <DoctorProfile />
         <div className="flex items-center gap-2">
           <Stethoscope className="h-5 w-5 text-primary" />
-          <span className="font-bold text-primary">Material</span>
+          <span className="font-bold text-primary">MedPortal</span>
         </div>
       </header>
 
@@ -38,7 +38,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-6 text-center border-t border-border">
         <p className="text-sm text-muted-foreground">
-          © 2026 Material
+          © 2026 MedPortal
         </p>
       </footer>
     </div>
