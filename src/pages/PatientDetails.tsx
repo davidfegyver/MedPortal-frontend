@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import PatientSummary from "@/components/PatientSummary";
 import PatientChat from "@/components/PatientChat";
 import PatientMenu from "@/components/PatientMenu";
@@ -16,30 +16,22 @@ const PatientDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [patient, setPatient] = useState<{ full_name: string } | null>(null);
-  const [records, setRecords] = useState("");
   const [loading, setLoading] = useState(true);
   const [chatWidth, setChatWidth] = useState(DEFAULT_CHAT_WIDTH);
   const [dragging, setDragging] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data: p } = await supabase.from("patients").select("full_name").eq("id", id!).maybeSingle();
-      if (!p) { navigate("/"); return; }
-      setPatient(p);
-
-      const { data: recs } = await supabase
-        .from("medical_records")
-        .select("diagnosis, treatment, notes, doctor_name, record_date")
-        .eq("patient_id", id!)
-        .order("record_date", { ascending: false });
-
-      const text = (recs || []).map(r =>
-        `Date: ${r.record_date}, Diagnosis: ${r.diagnosis}, Treatment: ${r.treatment}, Notes: ${r.notes}, Doctor: ${r.doctor_name}`
-      ).join("\n");
-      setRecords(text);
-      setLoading(false);
+    const fetchData = async () => {
+      try {
+        const p = await api.getPatientData(id!);
+        setPatient(p);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching patient:", err);
+        navigate("/");
+      }
     };
-    fetch();
+    fetchData();
   }, [id, navigate]);
 
   const handleMouseDown = () => setDragging(true);
@@ -100,7 +92,7 @@ const PatientDetails = () => {
         {/* Chat panel - sticky, full height */}
         <div style={{ width: chatWidth }} className="flex-shrink-0 flex flex-col h-full">
           <div className="flex-1 min-h-0 p-4 pl-0">
-            <PatientChat patientId={id!} patientName={patient?.full_name || ""} records={records} />
+            <PatientChat patientId={id!} patientName={patient?.full_name || ""} />
           </div>
         </div>
       </div>

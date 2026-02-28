@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, CreditCard } from "lucide-react";
@@ -25,20 +25,16 @@ const TAJInput = () => {
     setLoading(true);
     setError("");
 
-    const { data, error: dbError } = await supabase
-      .from("patients")
-      .select("id")
-      .eq("taj_number", digits)
-      .maybeSingle();
-
-    if (dbError || !data) {
+    try {
+      await api.getPatientData(digits);
+      navigate(`/patient/${digits}`);
+    } catch (err) {
       setError("TAJ number not found");
       setShaking(true);
       setTimeout(() => setShaking(false), 600);
-    } else {
-      navigate(`/patient/${data.id}`);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

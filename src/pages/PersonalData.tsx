@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { ArrowLeft, User, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -22,12 +22,17 @@ const PersonalData = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.from("patients").select("*").eq("id", id!).maybeSingle();
-      setPatient(data);
-      setLoading(false);
+    const fetchData = async () => {
+      try {
+        const data = await api.getPatientData(id!);
+        setPatient(data);
+      } catch (err) {
+        console.error("Error fetching patient personal data:", err);
+      } finally {
+        setLoading(false);
+      }
     };
-    fetch();
+    fetchData();
   }, [id, navigate]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;

@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { ArrowLeft, FileText, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 interface PDF {
-  id: string;
   file_name: string;
   file_url: string;
-  uploaded_at: string;
 }
 
 const PatientPDFs = () => {
@@ -21,13 +19,13 @@ const PatientPDFs = () => {
 
   const handleDownload = async (pdf: PDF) => {
     try {
-      setDownloading(pdf.id);
+      setDownloading(pdf.file_name);
       const response = await fetch(pdf.file_url);
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = pdf.file_name.endsWith(".pdf") ? pdf.file_name : `${pdf.file_name}.pdf`;
+      a.download = pdf.file_name;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -40,12 +38,22 @@ const PatientPDFs = () => {
   };
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.from("patient_pdfs").select("*").eq("patient_id", id!).order("uploaded_at", { ascending: false });
-      setPdfs(data || []);
-      setLoading(false);
+    const fetchData = async () => {
+      try {
+        const { documents } = await api.getDocuments(id!);
+        const pdfList = documents.map(filename => ({
+          file_name: filename,
+          file_url: api.getDocumentUrl(filename)
+        }));
+        setPdfs(pdfList);
+      } catch (err) {
+        console.error("Error fetching documents:", err);
+        toast.error("Failed to load documents");
+      } finally {
+        setLoading(false);
+      }
     };
-    fetch();
+    fetchData();
   }, [id, navigate]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -69,7 +77,7 @@ const PatientPDFs = () => {
           <div className="space-y-3">
             {pdfs.map(pdf => (
               <div
-                key={pdf.id}
+                key={pdf.file_name}
                 className="flex items-center gap-3 bg-card rounded-xl p-4 border border-border hover:healthcare-shadow transition-shadow"
               >
                 <FileText className="h-5 w-5 text-primary" />
@@ -80,16 +88,15 @@ const PatientPDFs = () => {
                   className="flex-1 min-w-0"
                 >
                   <p className="font-medium text-foreground text-sm">{pdf.file_name}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(pdf.uploaded_at).toLocaleDateString()}</p>
                 </a>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="text-primary hover:text-primary/80 flex-shrink-0"
                   onClick={() => handleDownload(pdf)}
-                  disabled={downloading === pdf.id}
+                  disabled={downloading === pdf.file_name}
                 >
-                  {downloading === pdf.id ? (
+                  {downloading === pdf.file_name ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Download className="h-4 w-4" />
